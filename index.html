@@ -1,17 +1,639 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#0a0a0a" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>Caspers Driver</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Caspers">
+  <meta name="theme-color" content="#050508">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon.svg">
+  <title>Caspers Transport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Chakra+Petch:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Road center line animation -->
+  <div class="road-line"></div>
+
+  <!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+  <header id="app-header">
+    <div class="header-brand">
+      <span class="brand-name">CASPERS<span class="brand-accent">.</span></span>
+      <span class="brand-tagline">No Bike Left Behind</span>
+    </div>
+    <div class="header-actions">
+      <button id="btn-add-job" class="icon-btn" aria-label="New job" title="New Job">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════ MAIN PANELS ═══════════════════════════ -->
+  <main id="app-main">
+
+    <!-- ── SCHEDULE ── -->
+    <div id="panel-schedule" class="panel active" role="tabpanel">
+      <div class="panel-inner">
+        <!-- Date selector -->
+        <div class="date-tabs">
+          <button class="date-tab active" data-filter="today">TODAY</button>
+          <button class="date-tab" data-filter="tomorrow">TOMORROW</button>
+          <button class="date-tab" data-filter="all">ALL</button>
+        </div>
+        <!-- Search -->
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="search" id="schedule-search" class="search-input" placeholder="Search client, rego, suburb…">
+        </div>
+        <!-- Job count badge -->
+        <div class="list-header">
+          <span id="job-count-label" class="list-count">— jobs</span>
+          <div class="status-filter-wrap" id="status-filters">
+            <button class="status-filter-btn active" data-status="all">ALL</button>
+            <button class="status-filter-btn" data-status="BOOKED">BOOKED</button>
+            <button class="status-filter-btn" data-status="ALLOCATED">ALLOC</button>
+            <button class="status-filter-btn" data-status="EN_ROUTE">EN ROUTE</button>
+            <button class="status-filter-btn" data-status="LOADED">LOADED</button>
+            <button class="status-filter-btn" data-status="COMPLETED">DONE</button>
+          </div>
+        </div>
+        <!-- Job list -->
+        <div id="job-list" class="job-list">
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">🏍️</div>
+            <p class="empty-title">NO JOBS YET</p>
+            <p class="empty-sub">Tap + to create a new job<br>or hit SOS for emergency callout</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── QUOTE ── -->
+    <div id="panel-quote" class="panel" role="tabpanel">
+      <div class="panel-inner">
+        <div class="panel-heading">
+          <h2 class="panel-title">QUOTE BUILDER</h2>
+          <p class="panel-sub">Base: Roseworthy SA</p>
+        </div>
+
+        <div class="quote-form">
+          <!-- Service Type -->
+          <div class="form-section">
+            <label class="form-label">SERVICE TYPE</label>
+            <div class="toggle-group" id="q-service">
+              <button class="toggle-btn active" data-val="standard">Standard</button>
+              <button class="toggle-btn" data-val="show_bike">Show Bike</button>
+              <button class="toggle-btn" data-val="emergency">Emergency</button>
+            </div>
+          </div>
+
+          <!-- Time of Day -->
+          <div class="form-section">
+            <label class="form-label">TIME OF DAY</label>
+            <div class="toggle-group" id="q-time">
+              <button class="toggle-btn active" data-val="business">Business</button>
+              <button class="toggle-btn" data-val="after_hours">After Hours</button>
+              <button class="toggle-btn" data-val="overnight">Overnight</button>
+            </div>
+          </div>
+
+          <!-- Distance -->
+          <div class="form-section">
+            <label class="form-label">DISTANCE (KM)</label>
+            <div class="distance-grid">
+              <div class="dist-field">
+                <label class="dist-label">Base → Pickup</label>
+                <input type="number" id="q-dist-base" class="form-input" placeholder="0" min="0" step="1">
+              </div>
+              <div class="dist-field">
+                <label class="dist-label">Pickup → Dropoff</label>
+                <input type="number" id="q-dist-job" class="form-input" placeholder="0" min="0" step="1">
+              </div>
+            </div>
+            <label class="checkbox-label mt-sm">
+              <input type="checkbox" id="q-return" class="checkbox-input">
+              <span class="checkbox-custom"></span>
+              Include return to base
+            </label>
+          </div>
+
+          <!-- Extras -->
+          <div class="form-section">
+            <label class="form-label">EXTRAS</label>
+            <div class="extras-grid">
+              <div class="extra-field">
+                <label class="dist-label">Additional Bikes</label>
+                <div class="counter-wrap">
+                  <button class="counter-btn" data-target="q-extra-bikes" data-op="dec">−</button>
+                  <input type="number" id="q-extra-bikes" class="counter-input" value="0" min="0" max="10" readonly>
+                  <button class="counter-btn" data-target="q-extra-bikes" data-op="inc">+</button>
+                </div>
+              </div>
+              <div class="extra-field">
+                <label class="dist-label">Wait Time (30min)</label>
+                <div class="counter-wrap">
+                  <button class="counter-btn" data-target="q-wait" data-op="dec">−</button>
+                  <input type="number" id="q-wait" class="counter-input" value="0" min="0" max="16" readonly>
+                  <button class="counter-btn" data-target="q-wait" data-op="inc">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Long Haul (shown when 250km+) -->
+          <div class="form-section" id="q-longhaul-section" style="display:none">
+            <label class="form-label">LONG HAUL <span class="badge-cyan">250km+</span></label>
+            <div class="extras-grid">
+              <div class="extra-field">
+                <label class="dist-label">Accommodation nights</label>
+                <div class="counter-wrap">
+                  <button class="counter-btn" data-target="q-nights" data-op="dec">−</button>
+                  <input type="number" id="q-nights" class="counter-input" value="0" min="0" max="30" readonly>
+                  <button class="counter-btn" data-target="q-nights" data-op="inc">+</button>
+                </div>
+              </div>
+              <div class="extra-field">
+                <label class="dist-label">Meal days</label>
+                <div class="counter-wrap">
+                  <button class="counter-btn" data-target="q-meals" data-op="dec">−</button>
+                  <input type="number" id="q-meals" class="counter-input" value="0" min="0" max="30" readonly>
+                  <button class="counter-btn" data-target="q-meals" data-op="inc">+</button>
+                </div>
+              </div>
+              <div class="extra-field">
+                <label class="dist-label">Driver days</label>
+                <div class="counter-wrap">
+                  <button class="counter-btn" data-target="q-driver-days" data-op="dec">−</button>
+                  <input type="number" id="q-driver-days" class="counter-input" value="0" min="0" max="30" readonly>
+                  <button class="counter-btn" data-target="q-driver-days" data-op="inc">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Price Display -->
+          <div class="price-display" id="q-price-display">
+            <div class="price-breakdown" id="q-breakdown">
+              <div class="breakdown-row"><span>Callout fee</span><span id="bd-callout">—</span></div>
+              <div class="breakdown-row"><span>Distance (<span id="bd-km">0</span>km)</span><span id="bd-distance">—</span></div>
+              <div class="breakdown-row" id="bd-service-row"><span>Service (<span id="bd-service-label">Standard</span>)</span><span id="bd-service">—</span></div>
+              <div class="breakdown-row" id="bd-time-row"><span>Time (<span id="bd-time-label">Business</span>)</span><span id="bd-time">—</span></div>
+              <div class="breakdown-row" id="bd-extras-row" style="display:none"><span>Extras</span><span id="bd-extras">—</span></div>
+              <div class="breakdown-row" id="bd-longhaul-row" style="display:none"><span>Long haul</span><span id="bd-longhaul">—</span></div>
+            </div>
+            <div class="price-total">
+              <span class="price-label">TOTAL</span>
+              <span class="price-value" id="q-total">$0</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="quote-actions">
+            <button class="btn btn-secondary" id="q-email-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+              Email Quote
+            </button>
+            <button class="btn btn-primary" id="q-save-job-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+              Save as Job
+            </button>
+          </div>
+
+          <!-- Customer details for email (collapsed until email clicked) -->
+          <div id="q-email-fields" style="display:none">
+            <div class="form-section">
+              <label class="form-label">CUSTOMER DETAILS</label>
+              <input type="text" id="q-cust-name" class="form-input" placeholder="Customer name">
+              <input type="email" id="q-cust-email" class="form-input mt-sm" placeholder="Customer email">
+              <input type="text" id="q-pickup-addr" class="form-input mt-sm" placeholder="Pickup address">
+              <input type="text" id="q-dropoff-addr" class="form-input mt-sm" placeholder="Dropoff address">
+              <button class="btn btn-primary mt-sm full-width" id="q-send-email-btn">
+                Send Email Quote
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RATES ── -->
+    <div id="panel-rates" class="panel" role="tabpanel">
+      <div class="panel-inner">
+        <div class="panel-heading">
+          <h2 class="panel-title">RATES CARD</h2>
+          <p class="panel-sub">Current pricing reference</p>
+        </div>
+        <div id="rates-content" class="rates-content">
+          <!-- Rendered by rates.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETUP ── -->
+    <div id="panel-setup" class="panel" role="tabpanel">
+      <div class="panel-inner">
+        <div class="panel-heading">
+          <h2 class="panel-title">SETUP</h2>
+          <p class="panel-sub">Business configuration</p>
+        </div>
+        <div class="setup-form">
+
+          <div class="form-section">
+            <label class="form-label">BUSINESS</label>
+            <input type="text" id="s-business-name" class="form-input" placeholder="Business name">
+            <input type="tel" id="s-phone" class="form-input mt-sm" placeholder="Phone number">
+            <input type="email" id="s-email" class="form-input mt-sm" placeholder="Email address">
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">PRICING</label>
+            <div class="setup-row">
+              <label>Callout fee ($)</label>
+              <input type="number" id="s-callout" class="setup-input" placeholder="95" min="0" step="0.50">
+            </div>
+            <div class="setup-row">
+              <label>Per km rate ($)</label>
+              <input type="number" id="s-per-km" class="setup-input" placeholder="3.50" min="0" step="0.10">
+            </div>
+            <div class="setup-row">
+              <label>After hours multiplier (×)</label>
+              <input type="number" id="s-mult-after" class="setup-input" placeholder="1.5" min="1" step="0.1">
+            </div>
+            <div class="setup-row">
+              <label>Overnight multiplier (×)</label>
+              <input type="number" id="s-mult-overnight" class="setup-input" placeholder="2.0" min="1" step="0.1">
+            </div>
+            <div class="setup-row">
+              <label>Show bike multiplier (×)</label>
+              <input type="number" id="s-mult-showbike" class="setup-input" placeholder="1.3" min="1" step="0.05">
+            </div>
+            <div class="setup-row">
+              <label>Emergency multiplier (×)</label>
+              <input type="number" id="s-mult-emergency" class="setup-input" placeholder="1.75" min="1" step="0.05">
+            </div>
+            <div class="setup-row">
+              <label>Wait time per 30min ($)</label>
+              <input type="number" id="s-wait" class="setup-input" placeholder="45" min="0" step="5">
+            </div>
+            <div class="setup-row">
+              <label>Additional bike ($)</label>
+              <input type="number" id="s-extra-bike" class="setup-input" placeholder="150" min="0" step="10">
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">LONG HAUL (250km+)</label>
+            <div class="setup-row">
+              <label>Accommodation per night ($)</label>
+              <input type="number" id="s-accommodation" class="setup-input" placeholder="150" min="0" step="10">
+            </div>
+            <div class="setup-row">
+              <label>Meals per day ($)</label>
+              <input type="number" id="s-meals" class="setup-input" placeholder="60" min="0" step="5">
+            </div>
+            <div class="setup-row">
+              <label>Driver day rate ($)</label>
+              <input type="number" id="s-driver-day" class="setup-input" placeholder="350" min="0" step="25">
+            </div>
+            <div class="setup-row">
+              <label>Long haul threshold (km)</label>
+              <input type="number" id="s-longhaul-km" class="setup-input" placeholder="250" min="100" step="50">
+            </div>
+          </div>
+
+          <div class="setup-actions">
+            <button class="btn btn-secondary" id="s-reset-btn">Reset Defaults</button>
+            <button class="btn btn-primary" id="s-save-btn">Save Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SOS ── -->
+    <div id="panel-sos" class="panel" role="tabpanel">
+      <div class="panel-inner sos-inner">
+        <div class="sos-header">
+          <div class="sos-flash"></div>
+          <h2 class="sos-title">EMERGENCY CALLOUT</h2>
+          <p class="sos-sub">Roadside breakdown — quick job creation</p>
+        </div>
+        <div class="sos-form" id="sos-form">
+          <div class="form-section">
+            <label class="form-label">CLIENT</label>
+            <input type="text" id="sos-client-name" class="form-input" placeholder="Client name" autocomplete="off">
+            <input type="tel" id="sos-client-phone" class="form-input mt-sm" placeholder="Phone number">
+          </div>
+          <div class="form-section">
+            <label class="form-label">VEHICLE</label>
+            <div class="vehicle-row">
+              <input type="text" id="sos-make" class="form-input" placeholder="Make" style="flex:1">
+              <input type="text" id="sos-model" class="form-input" placeholder="Model" style="flex:1">
+              <input type="text" id="sos-year" class="form-input" placeholder="Year" style="width:80px">
+            </div>
+            <input type="text" id="sos-rego" class="form-input mt-sm" placeholder="Rego">
+          </div>
+          <div class="form-section">
+            <label class="form-label">LOCATION</label>
+            <input type="text" id="sos-pickup" class="form-input" placeholder="Pickup address / location">
+            <input type="text" id="sos-dropoff" class="form-input mt-sm" placeholder="Dropoff address">
+            <input type="number" id="sos-distance" class="form-input mt-sm" placeholder="Estimated distance (km)" min="0">
+          </div>
+          <div class="form-section">
+            <label class="form-label">NOTES</label>
+            <textarea id="sos-notes" class="form-input form-textarea" placeholder="Issue description, special instructions…" rows="3"></textarea>
+          </div>
+          <button class="btn btn-sos full-width" id="sos-create-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            DISPATCH JOB NOW
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════ TAB BAR ═══════════════════════════════ -->
+  <nav id="tab-bar" role="tablist">
+    <button class="tab-btn active" data-tab="schedule" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Schedule</span>
+    </button>
+    <button class="tab-btn" data-tab="quote" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Quote</span>
+    </button>
+    <button class="tab-btn tab-sos" data-tab="sos" role="tab" aria-label="SOS Emergency">
+      <div class="sos-tab-inner">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+        <span>SOS</span>
+      </div>
+    </button>
+    <button class="tab-btn" data-tab="rates" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span>Rates</span>
+    </button>
+    <button class="tab-btn" data-tab="setup" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Setup</span>
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════ MODALS ════════════════════════════════ -->
+
+  <!-- Job Form Modal -->
+  <div id="modal-job-form" class="modal" role="dialog" aria-modal="true" aria-label="Job form">
+    <div class="modal-backdrop"></div>
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title" id="job-form-title">NEW JOB</h3>
+        <button class="modal-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="job-form" novalidate>
+          <input type="hidden" id="jf-id">
+
+          <div class="form-section">
+            <label class="form-label">SCHEDULE</label>
+            <div class="form-row">
+              <div class="form-col">
+                <label class="field-label">Date</label>
+                <input type="date" id="jf-date" class="form-input" required>
+              </div>
+              <div class="form-col">
+                <label class="field-label">Time</label>
+                <input type="time" id="jf-time" class="form-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">CLIENT</label>
+            <input type="text" id="jf-client-name" class="form-input" placeholder="Full name" required autocomplete="off">
+            <input type="tel" id="jf-client-phone" class="form-input mt-sm" placeholder="Phone number">
+            <input type="email" id="jf-client-email" class="form-input mt-sm" placeholder="Email (optional)">
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">VEHICLE</label>
+            <div class="vehicle-row">
+              <input type="text" id="jf-make" class="form-input" placeholder="Make" style="flex:1">
+              <input type="text" id="jf-model" class="form-input" placeholder="Model" style="flex:1">
+            </div>
+            <div class="vehicle-row mt-sm">
+              <input type="text" id="jf-year" class="form-input" placeholder="Year" style="width:90px">
+              <input type="text" id="jf-color" class="form-input" placeholder="Colour" style="flex:1">
+              <input type="text" id="jf-rego" class="form-input" placeholder="Rego" style="flex:1">
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">LOCATIONS</label>
+            <input type="text" id="jf-pickup" class="form-input" placeholder="Pickup address" required>
+            <input type="text" id="jf-dropoff" class="form-input mt-sm" placeholder="Dropoff address" required>
+            <input type="number" id="jf-distance" class="form-input mt-sm" placeholder="Distance (km)" min="0" step="1">
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">SERVICE</label>
+            <div class="toggle-group" id="jf-service">
+              <button type="button" class="toggle-btn active" data-val="standard">Standard</button>
+              <button type="button" class="toggle-btn" data-val="show_bike">Show Bike</button>
+              <button type="button" class="toggle-btn" data-val="emergency">Emergency</button>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">TIME OF DAY</label>
+            <div class="toggle-group" id="jf-time-of-day">
+              <button type="button" class="toggle-btn active" data-val="business">Business</button>
+              <button type="button" class="toggle-btn" data-val="after_hours">After Hours</button>
+              <button type="button" class="toggle-btn" data-val="overnight">Overnight</button>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">PRICING</label>
+            <div class="form-row">
+              <div class="form-col">
+                <label class="field-label">Price ($)</label>
+                <input type="number" id="jf-price" class="form-input" placeholder="0.00" min="0" step="0.50">
+              </div>
+              <div class="form-col">
+                <label class="field-label">Payment</label>
+                <select id="jf-payment" class="form-select">
+                  <option value="unpaid">Unpaid</option>
+                  <option value="cash">Cash</option>
+                  <option value="paid">Paid (Card)</option>
+                  <option value="invoice">Invoice</option>
+                </select>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline mt-sm full-width" id="jf-calc-price">
+              Calculate Price from Rates
+            </button>
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">STATUS</label>
+            <div class="toggle-group" id="jf-status">
+              <button type="button" class="toggle-btn active" data-val="BOOKED">Booked</button>
+              <button type="button" class="toggle-btn" data-val="ALLOCATED">Allocated</button>
+              <button type="button" class="toggle-btn" data-val="EN_ROUTE">En Route</button>
+              <button type="button" class="toggle-btn" data-val="LOADED">Loaded</button>
+              <button type="button" class="toggle-btn" data-val="COMPLETED">Completed</button>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label class="form-label">DRIVER NOTES</label>
+            <textarea id="jf-notes" class="form-input form-textarea" placeholder="Any special instructions, access codes, contact info…" rows="3"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-danger" id="jf-delete-btn" style="display:none">Delete</button>
+            <button type="submit" class="btn btn-primary" id="jf-save-btn">Save Job</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transport Document Modal -->
+  <div id="modal-transport-doc" class="modal" role="dialog" aria-modal="true" aria-label="Transport document">
+    <div class="modal-backdrop"></div>
+    <div class="modal-sheet modal-sheet--full">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="td-title">TRANSPORT DOCUMENT</h3>
+          <p class="modal-subtitle" id="td-subtitle"></p>
+        </div>
+        <button class="modal-close" aria-label="Close" id="td-close-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <!-- Step indicator -->
+      <div class="td-steps" id="td-steps">
+        <div class="td-step active" data-step="1">1</div>
+        <div class="td-step-line"></div>
+        <div class="td-step" data-step="2">2</div>
+        <div class="td-step-line"></div>
+        <div class="td-step" data-step="3">3</div>
+        <div class="td-step-line"></div>
+        <div class="td-step" data-step="4">4</div>
+        <div class="td-step-line"></div>
+        <div class="td-step" data-step="5">5</div>
+        <div class="td-step-line"></div>
+        <div class="td-step" data-step="6">6</div>
+        <div class="td-step-line"></div>
+        <div class="td-step" data-step="7">7</div>
+        <div class="td-step-line"></div>
+        <div class="td-step" data-step="8">8</div>
+      </div>
+      <div class="modal-body" id="td-body">
+        <!-- Rendered by transport-doc.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="td-back-btn">Back</button>
+        <button class="btn btn-primary" id="td-next-btn">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- ═══════════════════════════════ LOGIN SCREEN ══════════════════════════ -->
+  <div id="login-screen" style="
+    position:fixed;inset:0;z-index:9999;
+    background:#050508;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:32px;
+  ">
+    <div style="text-align:center;margin-bottom:40px;">
+      <div style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:800;color:#fff;letter-spacing:2px;">
+        CASPERS<span style="color:#00d4ff;">.</span>
+      </div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:13px;color:#666;letter-spacing:3px;margin-top:4px;">
+        NO BIKE LEFT BEHIND
+      </div>
+    </div>
+
+    <div style="width:100%;max-width:320px;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:12px;color:#555;letter-spacing:2px;text-align:center;margin-bottom:16px;">
+        ENTER DRIVER PIN
+      </div>
+
+      <!-- PIN dots display -->
+      <div id="pin-dots" style="display:flex;justify-content:center;gap:12px;margin-bottom:32px;">
+        <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;border:2px solid #333;background:transparent;transition:background 0.15s;"></div>
+        <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;border:2px solid #333;background:transparent;transition:background 0.15s;"></div>
+        <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;border:2px solid #333;background:transparent;transition:background 0.15s;"></div>
+        <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;border:2px solid #333;background:transparent;transition:background 0.15s;"></div>
+        <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;border:2px solid #333;background:transparent;transition:background 0.15s;"></div>
+        <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;border:2px solid #333;background:transparent;transition:background 0.15s;"></div>
+      </div>
+
+      <!-- Number pad -->
+      <div id="pin-pad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <button class="pin-key" data-val="1">1</button>
+        <button class="pin-key" data-val="2">2</button>
+        <button class="pin-key" data-val="3">3</button>
+        <button class="pin-key" data-val="4">4</button>
+        <button class="pin-key" data-val="5">5</button>
+        <button class="pin-key" data-val="6">6</button>
+        <button class="pin-key" data-val="7">7</button>
+        <button class="pin-key" data-val="8">8</button>
+        <button class="pin-key" data-val="9">9</button>
+        <button class="pin-key pin-key--clear" data-val="clear" style="font-size:12px;letter-spacing:1px;">CLR</button>
+        <button class="pin-key" data-val="0">0</button>
+        <button class="pin-key pin-key--del" data-val="del">⌫</button>
+      </div>
+
+      <div id="pin-error" style="
+        font-family:'Rajdhani',sans-serif;font-size:13px;color:#ff4444;
+        text-align:center;margin-top:20px;min-height:20px;letter-spacing:1px;
+      "></div>
+    </div>
+  </div>
+
+  <style>
+    .pin-key {
+      background: #0d0d12;
+      border: 1px solid #1a1a2e;
+      border-radius: 12px;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      padding: 20px 0;
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pin-key:active { background: #00d4ff22; border-color: #00d4ff; }
+    .pin-key--clear, .pin-key--del {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+
+  <!-- Scripts -->
+  <script src="/js/storage.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/schedule.js"></script>
+  <script src="/js/job-form.js"></script>
+  <script src="/js/quote.js"></script>
+  <script src="/js/rates.js"></script>
+  <script src="/js/setup.js"></script>
+  <script src="/js/sos.js"></script>
+  <script src="/js/transport-doc.js"></script>
+</body>
 </html>
