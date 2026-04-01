@@ -112,13 +112,28 @@ const CT = {
   },
 
   // Fetch from DB → update cache → return jobs array
+  // Preserves local transportDoc progress (photos/signatures) on each sync
   async syncJobs() {
     const session = this.getSession();
     if (!session) return [];
     try {
       const dbJobs = await this.api.fetchJobs(session.id);
-      // Map DB columns to the shape the PWA expects
-      const jobs = dbJobs.map(row => this._dbRowToJob(row));
+
+      // Build a lookup of existing local jobs so we can preserve transportDoc data
+      const existing = this.getJobs();
+      const localById = {};
+      existing.forEach(j => { localById[String(j.id)] = j; });
+
+      const jobs = dbJobs.map(row => {
+        const mapped = this._dbRowToJob(row);
+        const local  = localById[String(mapped.id)];
+        // Preserve any in-progress transport doc (photos, signatures, checklist)
+        if (local && local.transportDoc && local.transportDoc.started) {
+          mapped.transportDoc = local.transportDoc;
+        }
+        return mapped;
+      });
+
       localStorage.setItem(this.JOBS_CACHE, JSON.stringify(jobs));
       return jobs;
     } catch (err) {
